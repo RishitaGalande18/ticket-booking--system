@@ -131,7 +131,7 @@ src
 
 ### Database ER Diagram
 
-![ER Diagram](er-diagram.png)
+![ER Diagram](/er-diagram.png)
 ---
 
 ##  Authentication Flow
