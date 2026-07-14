@@ -130,7 +130,8 @@ src
 - Waitlists
 
 ### Database ER Diagram
-(supabase-schema-xwdgdlrpieqrftoqxizz.png)
+
+![ER Diagram](er-diagram.png)
 ---
 
 ##  Authentication Flow
