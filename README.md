@@ -129,6 +129,8 @@ src
 - Payments
 - Waitlists
 
+### Database ER Diagram
+(supabase-schema-xwdgdlrpieqrftoqxizz.png)
 ---
 
 ##  Authentication Flow
@@ -176,7 +178,7 @@ POST /api/v1/seats/create
 
 ---
 
-## ⚡ Key Engineering Challenges
+##  Key Engineering Challenges
 
 ### Concurrent Seat Booking
 
