@@ -7,6 +7,11 @@ const createBookingSchema = z.object({
     .min(1, "At least one seatId is required")
 });
 
+const bookingIdSchema = z.object({
+  bookingId: z.uuid()
+});
+
 module.exports = {
-  createBookingSchema
+  createBookingSchema,
+  bookingIdSchema
 };

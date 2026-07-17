@@ -1,6 +1,11 @@
-const { createBooking } = require("../services/booking.service");
+const { createBooking , getMyBookings, getBookingDetails} = require("../services/booking.service");
 const { createBookingSchema } = require("../validators/booking.validator");
 const { ZodError } = require("zod");
+
+const {
+  bookingIdSchema
+} = require("../validators/booking.validator");
+
 
 const createBookingController = async (req, res) => {
   try {
@@ -56,6 +61,66 @@ if (error instanceof ZodError) {
   }
 };
 
+const getMyBookingsController =
+  async (req, res) => {
+
+    try {
+
+      const userId = req.user.id;
+
+      const bookings =
+        await getMyBookings(userId);
+
+      return res.status(200).json({
+        success: true,
+        data: bookings
+      });
+
+    } catch (error) {
+
+      return res.status(500).json({
+        success: false,
+        message: error.message
+      });
+
+    }
+
+  };
+
+  const getBookingDetailsController =
+  async (req, res) => {
+
+    try {
+
+      const { bookingId } =
+        bookingIdSchema.parse(
+          req.params
+        );
+
+      const booking =
+        await getBookingDetails(
+          bookingId,
+          req.user.id
+        );
+
+      return res.status(200).json({
+        success: true,
+        data: booking
+      });
+
+    } catch (error) {
+
+      return res.status(500).json({
+        success: false,
+        message: error.message
+      });
+
+    }
+
+  };
+
 module.exports = {
-  createBookingController
+  createBookingController,
+  getMyBookingsController,
+  getBookingDetailsController
 };
