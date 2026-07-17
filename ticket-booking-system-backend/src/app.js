@@ -16,6 +16,7 @@ const eventRoutes =
   require("./routes/event.routes");
 
 const showRoutes = require("./routes/show.routes");
+const bookingRoutes = require("./routes/booking.routes");
 
 const app = express();
 
@@ -48,6 +49,11 @@ app.use(
 app.use(
   "/api/v1/shows",
   showRoutes
+);
+
+app.use(
+  "/api/v1/bookings",
+  bookingRoutes
 );
 
 module.exports = app;

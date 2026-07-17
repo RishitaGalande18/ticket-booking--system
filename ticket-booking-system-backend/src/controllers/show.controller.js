@@ -1,13 +1,14 @@
 const {
   createShow,
-  createShowPricing
-  ,
+  createShowPricing,
+  createHold,
   getShowSeatMap
 } = require("../services/show.service");
 const {
   createShowSchema,
   createShowPricingSchema
 } = require("../validators/show.validator");
+const { createHoldSchema } = require("../validators/hold.validator");
 
 const createShowController = async (req, res) => {
   try {
@@ -68,6 +69,40 @@ const createShowPricingController = async (req, res) => {
 };
 
 
+const createHoldController = async (req, res) => {
+  try {
+    const parsed = createHoldSchema.parse(req.body);
+    const userId = req.user.id;
+
+    const result = await createHold(userId, parsed.showId, parsed.seatIds);
+
+    return res.status(201).json({
+      success: true,
+      seatsHeld: result.seatsHeld,
+      holdExpiresAt: result.holdExpiresAt.toISOString()
+    });
+  } catch (error) {
+    if (error.name === "ZodError") {
+      return res.status(400).json({
+        success: false,
+        message: error.errors.map((e) => e.message).join(", ")
+      });
+    }
+
+    if (error.message.includes("not available")) {
+      return res.status(409).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 const getShowSeatsController = async (req, res) => {
   try {
     const { showId } = req.params;
@@ -85,5 +120,6 @@ const getShowSeatsController = async (req, res) => {
 module.exports = {
   createShowController,
   createShowPricingController,
+  createHoldController,
   getShowSeatsController
 };

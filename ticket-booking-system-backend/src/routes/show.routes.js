@@ -3,8 +3,8 @@ const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
 const {
   createShowController,
-  createShowPricingController
-  ,
+  createShowPricingController,
+  createHoldController,
   getShowSeatsController
 } = require("../controllers/show.controller");
 
@@ -27,6 +27,13 @@ router.post(
 router.get(
   "/:showId/seats",
   getShowSeatsController
+);
+
+router.post(
+  "/holds",
+  authMiddleware,
+  roleMiddleware("CUSTOMER"),
+  createHoldController
 );
 
 module.exports = router;

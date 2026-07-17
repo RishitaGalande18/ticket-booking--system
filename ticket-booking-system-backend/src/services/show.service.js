@@ -99,12 +99,90 @@ const createShowPricing = async (showId, prices) => {
   }
 };
 
-module.exports = {
-  createShow,
-  createShowPricing
+const releaseExpiredHolds = async (showId, client = pool) => {
+  await client.query(
+    `
+    UPDATE show_seats
+    SET
+      status = 'AVAILABLE',
+      held_by = NULL,
+      hold_expires_at = NULL
+    WHERE show_id = $1
+      AND status = 'HELD'
+      AND hold_expires_at <= NOW()
+    `,
+    [showId]
+  );
+};
+
+const createHold = async (userId, showId, seatIds) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    await releaseExpiredHolds(showId, client);
+
+    const lockResult = await client.query(
+      `
+  SELECT *
+  FROM show_seats
+  WHERE show_id = $1
+  AND id = ANY($2)
+  FOR UPDATE
+  `,
+      [showId, seatIds]
+    );
+
+    if (lockResult.rows.length !== seatIds.length) {
+      throw new Error(
+        "One or more seats are invalid"
+      );
+    }
+
+    const unavailableSeat = lockResult.rows.find(
+      (seat) => seat.status !== "AVAILABLE"
+    );
+
+    if (unavailableSeat) {
+      throw new Error(
+        `Seat ${unavailableSeat.id} is not available for hold`
+      );
+    }
+
+    const holdExpiresAt = new Date(
+      Date.now() + 10 * 60 * 1000
+    );
+
+    const updateResult = await client.query(
+      `
+      UPDATE show_seats
+      SET
+        status = 'HELD',
+        held_by = $1,
+        hold_expires_at = $2
+      WHERE id = ANY($3)
+      `,
+      [userId, holdExpiresAt, seatIds]
+    );
+
+    await client.query("COMMIT");
+
+    return {
+      seatsHeld: updateResult.rowCount,
+      holdExpiresAt
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
 const getShowSeatMap = async (showId) => {
+  await releaseExpiredHolds(showId);
+
   const query = `
 SELECT
     ss.id AS show_seat_id,
@@ -149,5 +227,6 @@ ORDER BY
 module.exports = {
   createShow,
   createShowPricing,
+  createHold,
   getShowSeatMap
 };
