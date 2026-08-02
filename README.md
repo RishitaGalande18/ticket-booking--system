@@ -256,4 +256,4 @@ This project demonstrates:
 
 **Rishita Galande**
 
-Computer Engineering Student | Backend Developer | 
+Computer Engineering Student  
