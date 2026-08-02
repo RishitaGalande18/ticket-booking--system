@@ -11,7 +11,12 @@ const bookingIdSchema = z.object({
   bookingId: z.uuid()
 });
 
+const bookingReferenceSchema = z.object({
+  bookingReference: z.string().regex(/^BOOK-[A-F0-9]{8}$/, "Invalid booking reference")
+});
+
 module.exports = {
   createBookingSchema,
-  bookingIdSchema
+  bookingIdSchema,
+  bookingReferenceSchema
 };

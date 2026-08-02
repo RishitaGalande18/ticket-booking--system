@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -54,6 +55,11 @@ app.use(
 app.use(
   "/api/v1/bookings",
   bookingRoutes
+);
+
+app.use(
+  "/qrcodes",
+  express.static(path.join(__dirname, "..", "public", "qrcodes"))
 );
 
 module.exports = app;
